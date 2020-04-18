@@ -1,6 +1,6 @@
 #import yaml
 from os.path import sep, isfile, isdir
-from os import listdir, mkdir
+from os import listdir, mkdir, getenv
 import sys
 import json
 from shutil import copyfile
@@ -10,6 +10,7 @@ from tkinter import filedialog
 from tkinter import messagebox, BOTH
 from tkinter.ttk import Frame, Button
 import traceback
+import winreg
 
 global yaml
 yaml = YAML()
@@ -206,6 +207,31 @@ def create_new_mod(changed_data, dirname, mod_name, translation, source):
             yaml_dump(dest + sep + "AbilityCardDefinitions" + sep + character + sep + card, changed_data["character_cards"][character][card])
     return       
         
+def getWorkshopLocation():
+    try:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\Wow6432Node\Valve\Steam")
+    except:
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, "SOFTWARE\Valve\Steam")
+    try:
+        install_locations = [winreg.QueryValueEx(key, "InstallPath")[0] + sep + "steamapps"]
+        f = open(install_locations[0] + sep + "libraryfolders.vdf")
+        content = f.readlines()
+        for line in content:
+            #print(list(line))
+            try:
+                int(line.strip().split('\t')[0].strip().replace('"', ''))
+                install_locations.append(line.strip().split('\t')[2].strip().replace("\\\\","\\").replace('"', '') + sep + "steamapps")
+            except:
+                pass
+        for install_location in install_locations:
+            if "workshop" in listdir(install_location):
+                if "780290" in listdir(install_location + sep + "workshop" + sep + "content"):
+                    return install_location + sep + "workshop" + sep + "content" + sep + "780290"
+        return install_locations[0]
+    except:
+        traceback.print_exc()
+        return ""
+    
     
     
 class Main(Frame):
@@ -222,11 +248,11 @@ class Main(Frame):
         self.ruleset_button.place(x=50, y=300)
         self.pack(fill=BOTH, expand=1)
     def set_mod_dir(self):
-        self.mod_dir = filedialog.askdirectory(initialdir="E:\\SteamLibrary\\steamapps\\workshop\\content\\780290\\1974517056")
+        self.mod_dir = filedialog.askdirectory(initialdir=getWorkshopLocation())
         if self.ruleset_dir != "":
             self.set_selection_options()
     def set_ruleset(self):
-        self.ruleset_dir = filedialog.askdirectory(initialdir="C:\\Users\\kylefriedline\\AppData\\LocalLow\\FlamingFowlStudios\\Gloomhaven\\GloomModConfigs\\Second")
+        self.ruleset_dir = filedialog.askdirectory(initialdir=sep.join(getenv("APPDATA").split(sep)[0:-1]) + sep + "LocalLow" + sep + "FlamingFowlStudios" + sep + "Gloomhaven" + sep + "GloomModConfigs")
         if self.mod_dir != "":
             self.set_selection_options()
     def set_selection_options(self):
