@@ -1,6 +1,6 @@
 Hello everyone!
 
-This is my first mod for a game that I've ever mode, so I'm sorry if it is not polished.  
+This is my first mod for a game that I've ever made, so I'm sorry if it is not polished.  
 
 This mod intents to help with an issue with Gloomhaven modding in which mods such as the Sun-Brute mod, which requires the overwriting of a character to use.  Therefore, if you wanted to play with a group including both Sun and Brute, you will be unable to.  This mod (or executable as it were) fixes this by creating a new mod with relinked data elements, allowing you to change the class that gets overwritten to whatever you want.  
 
